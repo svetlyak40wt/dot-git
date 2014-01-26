@@ -1,0 +1,191 @@
+#autoload colors
+#colors
+
+# ----------------------------------------------------------------------
+# The following implements a caching mechanism for git information.
+# The RPROMPT executes get_git_bprompt_info() and include the output...
+#
+#   setopt prompt_subst
+#   RPROMPT="$(get_git_prompt_info)"
+#
+__ZSH_GIT_DIR=
+__ZSH_GIT_BRANCH=
+__ZSH_GIT_STATE=
+__ZSH_GIT_TS=0
+__ZSH_GIT_VARS_INVALID=1
+
+# get the name of the branch we are on
+parse_git_branch() {
+        git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1) -- /'
+}
+
+# http://blog.madism.org/index.php/2008/05/07/173-git-prompt
+new_parse_git_branch() {
+    local force=$1
+
+    local git_dir branch
+    psvar=()
+    git_dir=$(git rev-parse --git-dir 2> /dev/null)
+    if [[ -z "$git_dir" ]] ; then
+            __ZSH_GIT_DIR=
+            return
+    fi
+
+    if uname | grep Darwin > /dev/null; then
+        local new_stamp=$(stat -t '%s' "$git_dir/HEAD" | cut -f 10 -d ' ' | cut -f 2 -d '"')
+    else
+        local new_stamp=$(stat -c '%Y' "$git_dir/HEAD")
+    fi
+
+    [[ "$force" == "0" && "$__ZSH_GIT_TS" == "$new_stamp" ]] && return
+
+    # rewritten by Thomas Ritz <thomas(at)galaxy-ritz(dot)de>
+    __ZSH_GIT_STATE=
+    if [[ -d "$git_dir/rebase-apply" ]] ; then
+            if [[ -f "$git_dir/rebase-apply/rebasing" ]] ; then
+                    __ZSH_GIT_STATE="rebase"
+            elif [[ -f "$git_dir/rebase-apply/applying" ]] ; then
+                    __ZSH_GIT_STATE="am"
+            else
+                    __ZSH_GIT_STATE="am/rebase"
+            fi
+            branch="$(git symbolic-ref HEAD 2>/dev/null)"
+    elif [[ -f "$git_dir/rebase-merge/interactive" ]] ; then
+            __ZSH_GIT_STATE="rebase -i"
+            branch="$(cat "$git_dir/rebase-merge/head-name")"
+    elif [[ -d "$git_dir/rebase-merge" ]] ; then           
+            __ZSH_GIT_STATE="rebase -m"
+            branch="$(cat "$git_dir/rebase-merge/head-name")"
+    elif [[ -f "$git_dir/MERGE_HEAD" ]] ; then             
+            __ZSH_GIT_STATE="merge"
+            branch="$(git symbolic-ref HEAD 2>/dev/null)"
+    else                                             
+            [[ -f "$git_dir/BISECT_LOG" ]] && __ZSH_GIT_STATE="bisect"
+            branch="$(git symbolic-ref HEAD 2>/dev/null)" || \
+            branch="$(git describe --exact-match HEAD 2>/dev/null)" || \
+            branch="$(cut -c1-7 "$git_dir/HEAD")..."
+    fi                                              
+
+    if uname | grep Darwin > /dev/null; then
+        __ZSH_GIT_FULL_DIR=${git_dir:h}
+    else
+        __ZSH_GIT_FULL_DIR=$(readlink -f ${git_dir:h})
+    fi
+
+    __ZSH_GIT_DIR="${__ZSH_GIT_FULL_DIR/$HOME/~}"
+    __ZSH_GIT_BRANCH="${branch#refs/heads/}"
+
+    __ZSH_GIT_TS=$new_stamp
+}
+
+
+zsh_git_invalidate_vars() {
+        __ZSH_GIT_VARS_INVALID=1
+}
+zsh_git_compute_vars() {
+        new_parse_git_branch $1
+        __ZSH_GIT_VARS_INVALID=0
+}
+
+if /bin/zsh --version | grep '4.0.9' > /dev/null; then
+else
+    preexec_functions+='zsh_git_preexec_update_vars'
+    chpwd_functions+='zsh_git_chpwd_update_vars'
+fi
+
+# on each chdir update the cached git variable(s)
+zsh_git_chpwd_update_vars() {
+        zsh_git_compute_vars 1
+}
+zsh_git_preexec_update_vars() {
+        case "$(history $HISTCMD)" in 
+        *git*)  zsh_git_invalidate_vars
+                ;;
+        *)      [[ "$__ZSH_GIT_VARS_INVALID" == '0' ]] && return
+                ;;
+        esac
+        zsh_git_compute_vars 1
+}
+
+
+# this function returns the current git branch
+# it takes as argument a string with printf like arguments:
+#   '%P'     path to top of repository
+#   '%p'     path to top of repository, with s/$HOME/~/
+#   '%b'     current branch
+#   '%s'     state of rebase/merge/bisect/am
+#   '%%'     a '%' character
+# providing no arguments is equivalent to "%p %b %s".
+get_git_prompt_info() {
+        zsh_git_compute_vars $__ZSH_GIT_VARS_INVALID
+        [[ -n "$__ZSH_GIT_DIR" ]] || return
+
+        local def fmt res
+        def='%p %b %s'
+        fmt=$@
+        res=${fmt:-$def}
+        res=${res//\%P/$__ZSH_GIT_FULL_DIR }
+        res=${res//\%p/$__ZSH_GIT_DIR }
+        res=${res//\%b/$__ZSH_GIT_BRANCH }
+
+        local state="$__ZSH_GIT_STATE"
+        if [[ -n "$state" ]] ; then
+                state="$state"
+
+# NOTE: This code take a long time to execute on large repos,
+#       but can show if the repo is dirty or not.  It cannot be 
+#       cached because it's too hard to figure out which commands
+#       change this state.  Enable it if you work on only small
+#       repositories.
+#
+        #elif ! git diff --quiet ; then
+        #        state="dirty "
+        fi
+        res=${res//\%s/$state}
+
+        res=${res//\%%/%}
+        
+        echo -n "${res}"
+}
+
+# call it the first time
+zsh_git_compute_vars
+
+
+function rprompt {
+    local col1 col2 ch1 ch2
+    col1="%{%b$fg[$2]%}"
+    col2="%{$4$fg[$3]%}"
+    ch1=$col1${1[1]}
+    ch2=$col1${1[2]}
+
+    local git_b git_s col_b col_s
+    git_b='$(get_git_prompt_info '%b')'
+    git_s='$(get_git_prompt_info '%s')'
+    col_b="%{$fg[green]%}"
+    col_s="%{$fg[red]%}"
+
+    local col3 vimode
+    vimode='${ZLE_VIMODE}'
+    col3='%{%S$fg[$ZLE_COLOR]%}'
+
+    RPROMPT="\
+$bgc$ch1\
+$col_b$git_b\
+$col_s$git_s\
+$bgc$col2%B%1~%b\
+$ch2$rst \
+$col3$vimode$rst "
+
+RPS1=""
+
+RPS1="${RPS1}${col_b}b:${git_b}"
+RPS1="${RPS1}${col_b}s:${git_s}"
+RPS1="${RPS1} ${longhost}${end}"
+}
+
+# only show git status on the right, if
+# git config is available
+if declare -f get_git_prompt_info > /dev/null; then
+    rprompt '<>' black red
+fi

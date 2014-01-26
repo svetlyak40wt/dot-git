@@ -1,0 +1,34 @@
+# git aliases
+if which ruby > /dev/null
+then
+    #alias git=hub
+fi
+
+alias wtf='git wtf'
+alias gitst='git status'
+alias gitpull='git pull'
+alias gitpush='git push'
+alias gitl='git log'
+alias gita='git add'
+alias gitp='git add --patch'
+alias gitci='git commit'
+alias gitcim='gitci -m'
+alias gitdi='git diff'
+alias gitdic='gitdi --cached'
+alias gitpushall='git push && git push --tags'
+alias gitco='git checkout'
+alias gitcob='git checkout -b'
+alias gitb='git branch'
+alias gitm='git merge'
+alias gitmv='git mv'
+alias gitrm='git rm'
+alias gitsvn='git svn'
+alias gitg='git log --pretty=oneline --graph'
+alias gitin='git log ..@{u}'
+alias gitout='git log @{u}..'
+alias clone-externals='/home/art/usr/opt/git-svn-clone-externals/git-svn-clone-externals'
+alias edit-conflicts='git ls-files -u | cut -f2 | sort -u | xargs vim'
+alias add-conflicts='git ls-files -u | cut -f2 | sort -u | xargs git add'
+
+# Initialize a new repository and add all files.
+alias gitinit='git init && git add . && git commit -m "Initial"'
