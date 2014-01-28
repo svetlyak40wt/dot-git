@@ -1,8 +1,9 @@
 [core]
     editor = emacs
 
-# please, specify this variables in ~/.gitconfig-local
+# Please, specify this variables in ~/.gitconfig-local
 # it is included in the end of this file
+# Note: include section work for git > 1.8
 # [user]
 #     name = Vasily Pupkin
 #     email = pupkin@vasya.iam
