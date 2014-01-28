@@ -1,0 +1,50 @@
+[core]
+    editor = emacs
+
+# please, specify this variables in ~/.gitconfig-local
+# it is included in the end of this file
+# [user]
+#     name = Vasily Pupkin
+#     email = pupkin@vasya.iam
+
+
+[alias]
+    st = status
+    ci = commit
+    br = branch
+    co = checkout
+    df = diff
+    lg = log -p
+    wtf = !git-wtf
+    permission-reset = !git diff -p -R | grep -E \"^(diff|(old|new) mode)\" | git apply
+
+[color]
+    ui = auto
+    branch = auto
+    diff = auto
+    status = auto
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+
+[color "status"]
+    added = yellow
+    changed = green
+    untracked = cyan
+
+[branch]
+    autosetupmerge = true
+
+[push]
+    default = tracking
+
+[include]
+    path = ~/.gitconfig-local
