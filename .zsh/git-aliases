@@ -1,8 +1,8 @@
 # git aliases
-if which ruby > /dev/null
-then
-    #alias git=hub
-fi
+#if which ruby > /dev/null
+#then
+#    #alias git=hub
+#fi
 
 alias wtf='git wtf'
 alias gitst='git status'
@@ -26,7 +26,7 @@ alias gitsvn='git svn'
 alias gitg='git log --pretty=oneline --graph'
 alias gitin='git log ..@{u}'
 alias gitout='git log @{u}..'
-alias clone-externals='/home/art/usr/opt/git-svn-clone-externals/git-svn-clone-externals'
+
 alias edit-conflicts='git ls-files -u | cut -f2 | sort -u | xargs vim'
 alias add-conflicts='git ls-files -u | cut -f2 | sort -u | xargs git add'
 
