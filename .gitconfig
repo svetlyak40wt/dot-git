@@ -1,5 +1,6 @@
 [core]
     editor = emacs
+	excludesfile = /Users/art/.gitignore_global
 
 # Please, specify this variables in ~/.gitconfig-local
 # it is included in the end of this file
@@ -43,9 +44,30 @@
 
 [branch]
     autosetupmerge = true
+    
+[merge]
+    # Include handwritten branch description, if it is
+    # associated with merged branch.
+    #
+    # Add these descriptions with git branch --edit-description
+    branchdesc = true
 
 [push]
     default = tracking
 
 [include]
     path = ~/.gitconfig-local
+[filter "lfs"]
+	clean = git lfs clean %f
+	smudge = git lfs smudge %f
+	required = true
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+
+[url "git@github.com:"]
+    insteadOf = gh:
+    
