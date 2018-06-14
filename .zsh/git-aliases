@@ -9,6 +9,8 @@ alias gitst='git status'
 alias gitpull='git pull'
 alias gitpush='git push'
 alias gitl='git log --all --graph --pretty=format:"%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit --date=relative'
+# same as above, but colorless
+alias gitlnc='git log --all --graph --pretty=format:"%h -%d %s (%cr) <%an>" --abbrev-commit --date=relative'
 alias gita='git add'
 alias gitp='git add --patch'
 alias gitci='git commit'
