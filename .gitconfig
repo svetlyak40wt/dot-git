@@ -1,6 +1,6 @@
 [core]
     editor = emacs
-	excludesfile = /Users/art/.gitignore_global
+	excludesfile = ~/.gitignore
 
 # Please, specify this variables in ~/.gitconfig-local
 # it is included in the end of this file
