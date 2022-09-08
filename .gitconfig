@@ -1,5 +1,5 @@
 [core]
-    editor = emacs
+    editor = vim
     excludesfile = ~/.gitignore
 
 # Please, specify this variables in ~/.gitconfig-local
@@ -71,3 +71,9 @@
 [url "git@github.com:"]
     insteadOf = gh:
     
+[pull]
+	rebase = false
+[github]
+	user = svetlyak40wt
+[github "github.yandex-team.ru/api/v3"]
+	user = art
