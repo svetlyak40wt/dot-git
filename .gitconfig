@@ -1,6 +1,7 @@
 [core]
     editor = vim
     excludesfile = ~/.gitignore
+    attributesfile = ~/.gitattributes
 
 # Please, specify this variables in ~/.gitconfig-local
 # it is included in the end of this file
@@ -64,6 +65,15 @@
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path = 
+
+# This trick is from the
+# https://www.n16f.net/blog/improving-git-diffs-for-lisp/
+[diff "common-lisp"]
+    xfuncname="^\\((def\\S+\\s+\\S+)"
+	        
+[diff "elisp"]
+    xfuncname="^\\((((def\\S+)|use-package)\\s+\\S+)"
+
 [mergetool "sourcetree"]
 	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
@@ -80,3 +90,4 @@
 [user]
 	email = svetlyak.40wt@gmail.com
 	name = Alexander Artemenko
+
