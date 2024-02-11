@@ -85,8 +85,6 @@
 	rebase = false
 [github]
 	user = svetlyak40wt
-[github "github.yandex-team.ru/api/v3"]
-	user = art
 [user]
 	email = svetlyak.40wt@gmail.com
 	name = Alexander Artemenko
