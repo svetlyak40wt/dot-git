@@ -1,5 +1,5 @@
 [core]
-    editor = vim
+    editor = emacs -nw
     excludesfile = ~/.gitignore
     attributesfile = ~/.gitattributes
 
@@ -20,6 +20,7 @@
     lg = log -p
     wtf = !git-wtf
     permission-reset = !git diff -p -R | grep -E \"^(diff|(old|new) mode)\" | git apply
+    cleanup = "!git branch --merged | grep  -v '\\*\\|master\\|develop' | xargs -n 1 -r git branch -d"
 
 [color]
     ui = auto
